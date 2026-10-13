@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla Periódica de Verbos Irregulares</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --aaa-color: #22c55e; /* Invariables */
+            --ought-color: #f97316; /* Ought/Aught */
+            --iau-color: #0ea5e9; /* i-a-u */
+            --en-color: #a855f7; /* -en */
+            --misc-color: #eab308; /* Otros */
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .legend-item {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid currentColor;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        .legend-item:hover { opacity: 1; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        .verb-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 15px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .verb-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px currentColor;
+        }
+        .verb-inf {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .verb-num {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        /* Modal */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid;
+            min-width: 300px;
+        }
+        .modal-content h2 { margin-top: 0; font-size: 2rem; }
+        .forms { font-size: 1.5rem; margin: 20px 0; color: #cbd5e1; }
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: transparent;
+            color: inherit;
+            border: 1px solid;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tabla Periódica: Verbos Irregulares</h1>
+    
+    <div class="legend">
+        <div class="legend-item" style="color: var(--aaa-color)">Invariables (AAA)</div>
+        <div class="legend-item" style="color: var(--ought-color)">-ought / -aught</div>
+        <div class="legend-item" style="color: var(--iau-color)">Cambio i - a - u</div>
+        <div class="legend-item" style="color: var(--en-color)">Participio en -en</div>
+        <div class="legend-item" style="color: var(--misc-color)">Otros</div>
+    </div>
+
+    <div class="grid" id="verbGrid"></div>
+
+    <div id="modal">
+        <div class="modal-content" id="modalContent">
+            <h2 id="modalInf">Verbo</h2>
+            <div class="forms">
+                <div><strong>Past Simple:</strong> <span id="modalPast"></span></div>
+                <div style="margin-top: 10px;"><strong>Past Participle:</strong> <span id="modalPart"></span></div>
+            </div>
+            <button class="close-btn" onclick="closeModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        const verbs = [
+            // AAA
+            { inf: "cut", past: "cut", part: "cut", group: "aaa", color: "var(--aaa-color)" },
+            { inf: "hit", past: "hit", part: "hit", group: "aaa", color: "var(--aaa-color)" },
+            { inf: "put", past: "put", part: "put", group: "aaa", color: "var(--aaa-color)" },
+            // Ought/Aught
+            { inf: "buy", past: "bought", part: "bought", group: "ought", color: "var(--ought-color)" },
+            { inf: "catch", past: "caught", part: "caught", group: "ought", color: "var(--ought-color)" },
+            { inf: "teach", past: "taught", part: "taught", group: "ought", color: "var(--ought-color)" },
+            // I-A-U
+            { inf: "sing", past: "sang", part: "sung", group: "iau", color: "var(--iau-color)" },
+            { inf: "swim", past: "swam", part: "swum", group: "iau", color: "var(--iau-color)" },
+            { inf: "ring", past: "rang", part: "rung", group: "iau", color: "var(--iau-color)" },
+            // -EN
+            { inf: "break", past: "broke", part: "broken", group: "en", color: "var(--en-color)" },
+            { inf: "speak", past: "spoke", part: "spoken", group: "en", color: "var(--en-color)" },
+            { inf: "drive", past: "drove", part: "driven", group: "en", color: "var(--en-color)" },
+            // Misc
+            { inf: "go", past: "went", part: "gone", group: "misc", color: "var(--misc-color)" },
+            { inf: "see", past: "saw", part: "seen", group: "misc", color: "var(--misc-color)" },
+            { inf: "make", past: "made", part: "made", group: "misc", color: "var(--misc-color)" }
+        ];
+
+        const grid = document.getElementById('verbGrid');
+        const modal = document.getElementById('modal');
+
+        verbs.forEach((verb, index) => {
+            const box = document.createElement('div');
+            box.className = 'verb-box';
+            box.style.color = verb.color;
+            box.innerHTML = `
+                <div class="verb-num">${index + 1}</div>
+                <div class="verb-inf">${verb.inf}</div>
+            `;
+            box.onclick = () => openModal(verb);
+            grid.appendChild(box);
+        });
+
+        function openModal(verb) {
+            document.getElementById('modalInf').innerText = verb.inf.toUpperCase();
+            document.getElementById('modalInf').style.color = verb.color;
+            document.getElementById('modalPast').innerText = verb.past;
+            document.getElementById('modalPart').innerText = verb.part;
+            document.getElementById('modalContent').style.borderColor = verb.color;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Cerrar al hacer clic fuera del modal
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
